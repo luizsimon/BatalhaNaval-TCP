@@ -1,4 +1,4 @@
-# README - Jogo de Batalha Naval Peer-to-Peer
+# Jogo de Batalha Naval Peer-to-Peer
 
 ## Descrição
 
