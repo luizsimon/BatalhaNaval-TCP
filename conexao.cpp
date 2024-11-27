@@ -19,8 +19,6 @@ void enviarNavios(int &rem_sockfd, json &navios) {
 	
 	string naviosJSON = json(navios).dump();
 
-	naviosJSON.append("EOF");
-
 	// Enviar o conteúdo do arquivo JSON
 	send(rem_sockfd, naviosJSON.c_str(), naviosJSON.size(), 0);
 }
@@ -34,14 +32,7 @@ void receberNavios(int &rem_sockfd) {
 		int bytes = recv(rem_sockfd, buffer.data(), buffer.size(), 0);
 
 		recebido.append(buffer.data(), bytes);
-
-		// Verifica se o EOF foi recebido
-
-		if(recebido.find("EOF") != string::npos) {
-			// Remover o "EOF" da string
-			recebido = recebido.substr(0, recebido.find("EOF"));
-			break; // Sai do loop, já leu todos os dados
-		}
+		break;
 	}
 
 	cout << "> Recebendo os Navios do Adversário..." << "\n";
