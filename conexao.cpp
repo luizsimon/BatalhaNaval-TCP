@@ -32,10 +32,9 @@ void receberNavios(int &rem_sockfd) {
 		int bytes = recv(rem_sockfd, buffer.data(), buffer.size(), 0);
 
 		recebido.append(buffer.data(), bytes);
-		cout << "Recebi: " << recebido << endl;
 
 		// Verifica se o EOF foi recebido
-
+		
 		if(recebido.find("EOF") != string::npos) {
 			// Remover o "EOF" da string
 			recebido = recebido.substr(0, recebido.find("EOF"));

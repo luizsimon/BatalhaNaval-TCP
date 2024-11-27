@@ -9,19 +9,25 @@
 using json = nlohmann::json;
 using namespace std;
 
-void lerArquivoJSON(json &navios, string nome) {
-	ifstream arquivo(nome);
+void lerArquivoJSON(json &arquivoJSON, string nome) {
+	string pasta = "Arquivos_Jogo";
+	string caminhoCompleto = pasta + "/" + nome;
+
+	ifstream arquivo(caminhoCompleto);
 	if(arquivo.is_open()) {
-		arquivo >> navios;
+		arquivo >> arquivoJSON;
 		arquivo.close();
 	}
 }
 
-void salvarArquivoJSON(json &navios, string nome) {
-	ofstream arquivo(nome, ios::out | ios::trunc);
+void salvarArquivoJSON(json &arquivoJSON, string nome) {
+	string pasta = "Arquivos_Jogo";
+	string caminhoCompleto = pasta + "/" + nome;
+
+	ofstream arquivo(caminhoCompleto, ios::out | ios::trunc);
 
 	if(arquivo.is_open()) {
-		arquivo << navios;
+		arquivo << arquivoJSON;
 		arquivo.close();
 	}
 }
@@ -146,21 +152,26 @@ void exibirCamposPosTiro(vector<vector<int>> &todasPosicoes, json &navios, vecto
 }
 
 void estruturarArquivoJSON(json &navios, string nome) {
-	ofstream arquivo(nome);
+	string pasta = "Arquivos_Jogo";
+	string caminhoCompleto = pasta + "/" + nome;
+	ofstream arquivo(caminhoCompleto);
 
-	arquivo << "[\n";
-	for(int i = 0; i < navios.size(); ++i) {
-		arquivo << "    {\n";
-		arquivo << "        \"tipo\": \"" << navios[i]["tipo"].get<string>() << "\",\n";
-		arquivo << "        \"posicoes\": ";
-		arquivo << navios[i]["posicoes"];
-		arquivo << "\n    }";
-		if(i != navios.size() - 1) {
-			arquivo << ",";
+	if (arquivo.is_open()) {
+		arquivo << "[\n";
+		for(int i = 0; i < navios.size(); ++i) {
+			arquivo << "    {\n";
+			arquivo << "        \"tipo\": \"" << navios[i]["tipo"].get<string>() << "\",\n";
+			arquivo << "        \"posicoes\": ";
+			arquivo << navios[i]["posicoes"];
+			arquivo << "\n    }";
+			if(i != navios.size() - 1) {
+				arquivo << ",";
+			}
+			arquivo << "\n";
 		}
-		arquivo << "\n";
+		arquivo << "]";
+		arquivo.close();
 	}
-	arquivo << "]";
 }
 
 void posicoesNavios(vector<vector<int>> &todasPosicoes, vector<vector<int>> &todasPosicoesAdversario) {
