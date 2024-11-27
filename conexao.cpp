@@ -15,6 +15,8 @@ using json = nlohmann::json;
 #define ECHOMAX 1024
 
 void enviarNavios(int &rem_sockfd, json &navios) {
+	cout << "> Enviando os navios para o adversário..." << "\n";
+	
 	string naviosJSON = json(navios).dump();
 
 	naviosJSON.append("EOF");
@@ -34,7 +36,7 @@ void receberNavios(int &rem_sockfd) {
 		recebido.append(buffer.data(), bytes);
 
 		// Verifica se o EOF foi recebido
-		
+
 		if(recebido.find("EOF") != string::npos) {
 			// Remover o "EOF" da string
 			recebido = recebido.substr(0, recebido.find("EOF"));
