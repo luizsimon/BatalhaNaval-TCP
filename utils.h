@@ -8,8 +8,9 @@ using namespace std;
 using json = nlohmann::json;
 
 // Declaração das funções
-void lerArquivoJSON(json &navios, string nome);
-void salvarArquivoJSON(json &navios, string nome);
+bool verificarTurno();
+void lerArquivoJSON(json &arquivoJSON, string nome);
+void salvarArquivoJSON(json &arquivoJSON, string nome);
 void exibirNavioNoCampo(json &campo, vector<int> &posTiro, const string &tipoNavio);
 bool verificarMensagem(string &mensagem);
 

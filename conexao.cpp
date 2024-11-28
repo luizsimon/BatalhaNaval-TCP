@@ -104,8 +104,7 @@ void serverTCP(json &navios, bool &continuarPartidaAnterior) {
 
 	loc_newsockfd = accept(loc_sockfd, (struct sockaddr *)&loc_addr, &tamanho);
 
-	vector<char> linha;
-	string mensagem;
+	string mensagem, buffer;
 	vector<vector<int>> todasPosicoes, todasPosicoesAdversario, posicoesJogadas, posicoesJogadasAdv;
 
 	enviarNavios(loc_newsockfd, navios);
@@ -114,39 +113,60 @@ void serverTCP(json &navios, bool &continuarPartidaAnterior) {
 	posicoesNavios(todasPosicoes, todasPosicoesAdversario);
 
 	bool finalizacaoPartida = false;
+	bool myTurn = true;
 
 	if(continuarPartidaAnterior) {
 		atualizarEstadoJogo(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		myTurn = verificarTurno();
 	}
 
-	if(!finalizacaoPartida) {
-		exibirCampos();
-		cout << "> Você começa jogando!" << "\n";
-		cout << "> Digite [0-9][0-9] (ex: 12 - linha 1 / coluna 2) para tentar acertar um navio!" << "\n";
-	} else {
+	if(finalizacaoPartida) {
 		exibirCampos();
 		cout << "Partida já finalizada anteriormente!" << "\n";
+	} else {
+		exibirCampos();
 	}
 
 	while(finalizacaoPartida == false) {
-		enviarMensagemAdversario(loc_newsockfd, posicoesJogadas, todasPosicoesAdversario);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		buffer.resize(ECHOMAX);
 
-		if(finalizacaoPartida) {
-			cout << "> Você ganhou!!! 😃" << "\n";
-			break;
-		}
+		if(myTurn) {
+			cout << "> Seu turno!" << "\n";
+			cout << "> Digite [0-9][0-9] (ex: 12 - linha 1 / coluna 2) para tentar acertar um navio!" << "\n";
 
-		linha.resize(ECHOMAX);
+			enviarMensagemAdversario(loc_newsockfd, posicoesJogadas, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
-		recv(loc_newsockfd, linha.data(), linha.size(), 0);
-		verificarTiro(string(linha.data()), false, posicoesJogadasAdv, todasPosicoes);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			myTurn = false;
 
-		if(finalizacaoPartida) {
-			cout << "> Você perdeu!!! 😢" << "\n";
-			break;
+			json campo;
+			lerArquivoJSON(campo, "campo.json");
+			campo["myTurn"] = myTurn;
+			salvarArquivoJSON(campo, "campo.json");
+
+			if(finalizacaoPartida) {
+				cout << "> Você ganhou!!! 😃" << "\n";
+				break;
+			}
+		} else {
+			cout << "> Aguardando adversário atirar..." << "\n";
+
+			recv(loc_newsockfd, &buffer[0], buffer.size(), 0);
+			verificarTiro(buffer, false, posicoesJogadasAdv, todasPosicoes);
+			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+
+			myTurn = true;
+
+			json campo;
+			lerArquivoJSON(campo, "campo.json");
+			campo["myTurn"] = myTurn;
+			salvarArquivoJSON(campo, "campo.json");
+
+			if(finalizacaoPartida) {
+				cout << "> Você perdeu!!! 😢" << "\n";
+				break;
+			}
 		}
 	};
 
@@ -194,38 +214,60 @@ void clientTCP(int argc, char *argv[], json &navios, bool &continuarPartidaAnter
 	posicoesNavios(todasPosicoes, todasPosicoesAdversario);
 
 	bool finalizacaoPartida = false;
+	bool myTurn = false;
 
 	if(continuarPartidaAnterior) {
 		atualizarEstadoJogo(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		myTurn = verificarTurno();
 	}
 
-	if(!finalizacaoPartida) {
-		exibirCampos();
-		cout << "> Adversário começa jogando..." << "\n";
-	} else {
+	if(finalizacaoPartida) {
 		exibirCampos();
 		cout << "Partida já finalizada anteriormente!" << "\n";
+	} else {
+		exibirCampos();
 	}
-
+		
 	while(finalizacaoPartida == false) {
 		buffer.resize(ECHOMAX);
 
-		recv(rem_sockfd, &buffer[0], buffer.size(), 0);
-		verificarTiro(buffer, false, posicoesJogadasAdv, todasPosicoes);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		if (myTurn) {
+			cout << "> Seu turno!" << "\n";
+			cout << "> Digite [0-9][0-9] (ex: 12 - linha 1 / coluna 2) para tentar acertar um navio!" << "\n";
 
-		if(finalizacaoPartida) {
-			cout << "> Você perdeu!!! 😢" << "\n";
-			break;
-		}
+			enviarMensagemAdversario(rem_sockfd, posicoesJogadas, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
-		enviarMensagemAdversario(rem_sockfd, posicoesJogadas, todasPosicoesAdversario);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			myTurn = false;
+			
+			json campo;
+			lerArquivoJSON(campo, "campo.json");
+			campo["myTurn"] = myTurn;
+			salvarArquivoJSON(campo, "campo.json");
 
-		if(finalizacaoPartida) {
-			cout << "> Você ganhou!!! 😃" << "\n";
-			break;
+			if(finalizacaoPartida) {
+				cout << "> Você ganhou!!! 😃" << "\n";
+				break;
+			}
+		} else {
+			cout << "> Aguardando adversário atirar..." << "\n";
+
+			recv(rem_sockfd, &buffer[0], buffer.size(), 0);
+			verificarTiro(buffer, false, posicoesJogadasAdv, todasPosicoes);
+			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+
+			myTurn = true;
+
+			json campo;
+			lerArquivoJSON(campo, "campo.json");
+			campo["myTurn"] = myTurn;
+			salvarArquivoJSON(campo, "campo.json");
+
+			if(finalizacaoPartida) {
+				cout << "> Você perdeu!!! 😢" << "\n";
+				break;
+			}
 		}
 	};
 
