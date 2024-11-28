@@ -32,8 +32,6 @@ void lerArquivoJSON(json &arquivoJSON, string nome) {
 		arquivo >> arquivoJSON;
 		arquivo.close();
 	}
-
-	//arquivoJSON = arquivoJSON["campo"];
 }
 
 void salvarArquivoJSON(json &arquivoJSON, string nome) {
@@ -113,8 +111,6 @@ void criarCampo(string nome, json navios) {
 			exibirNavioNoCampo(campo, posicao, tipoNavio);
 		}
 	}
-
-	//campo["campo"] = campoBatalha;
 
 	salvarArquivoJSON(campo, nome);
 }
@@ -326,7 +322,7 @@ void atualizarEstadoJogo(vector<vector<int>> &posicoesJogadas, vector<vector<int
 	}
 }
 
-bool verificarFinalizacaoPartidaAnterior(vector<vector<int>> &posicoesJogadas, vector<vector<int>> &posicoesJogadasAdv, vector<vector<int>> &todasPosicoes, vector<vector<int>> &todasPosicoesAdversario) {
+bool verificarFinalizacaoPartida(vector<vector<int>> &posicoesJogadas, vector<vector<int>> &posicoesJogadasAdv, vector<vector<int>> &todasPosicoes, vector<vector<int>> &todasPosicoesAdversario) {
 	vector<vector<int>> temp, tempAdv;
 
 	for(const auto &pos : todasPosicoes) {

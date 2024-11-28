@@ -4,6 +4,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+// Declaração das funções
 bool verificarSobreposicao(const vector<vector<int>> &todasPosicoes, const vector<int> &novaPosicao);
 void gerarPosicoes(int tamanho, vector<vector<int>> &todasPosicoes, string tipo, json &navios);
 void gerarNavio(string tipo, vector<vector<int>> &posicoesNavio, json &navios);

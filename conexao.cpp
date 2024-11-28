@@ -19,7 +19,6 @@ void enviarNavios(int &rem_sockfd, json &navios) {
 	
 	string naviosJSON = json(navios).dump();
 
-	// Enviar o conteúdo do arquivo JSON
 	send(rem_sockfd, naviosJSON.c_str(), naviosJSON.size(), 0);
 }
 
@@ -27,7 +26,6 @@ void receberNavios(int &rem_sockfd) {
 	vector<char> buffer(ECHOMAX);
 	string recebido;
 
-	// Recebe os dados até encontrar o EOF
 	while(true) {
 		int bytes = recv(rem_sockfd, buffer.data(), buffer.size(), 0);
 
@@ -36,10 +34,9 @@ void receberNavios(int &rem_sockfd) {
 	}
 
 	cout << "> Recebendo os Navios do Adversário..." << "\n";
-	// Aqui, 'recebido' contém o JSON completo sem o "EOF"
+
 	json naviosAdv = json::parse(recebido);
 
-	// Criar o arquivo JSON na máquina do jogador
 	estruturarArquivoJSON(naviosAdv, "naviosAdv.json");
 }
 
@@ -117,7 +114,7 @@ void serverTCP(json &navios, bool &continuarPartidaAnterior) {
 
 	if(continuarPartidaAnterior) {
 		atualizarEstadoJogo(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 		myTurn = verificarTurno();
 	}
 
@@ -136,7 +133,7 @@ void serverTCP(json &navios, bool &continuarPartidaAnterior) {
 			cout << "> Digite [0-9][0-9] (ex: 12 - linha 1 / coluna 2) para tentar acertar um navio!" << "\n";
 
 			enviarMensagemAdversario(loc_newsockfd, posicoesJogadas, todasPosicoesAdversario);
-			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
 			myTurn = false;
 
@@ -154,7 +151,7 @@ void serverTCP(json &navios, bool &continuarPartidaAnterior) {
 
 			recv(loc_newsockfd, &buffer[0], buffer.size(), 0);
 			verificarTiro(buffer, false, posicoesJogadasAdv, todasPosicoes);
-			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
 			myTurn = true;
 
@@ -218,7 +215,7 @@ void clientTCP(int argc, char *argv[], json &navios, bool &continuarPartidaAnter
 
 	if(continuarPartidaAnterior) {
 		atualizarEstadoJogo(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
-		finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+		finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 		myTurn = verificarTurno();
 	}
 
@@ -237,7 +234,7 @@ void clientTCP(int argc, char *argv[], json &navios, bool &continuarPartidaAnter
 			cout << "> Digite [0-9][0-9] (ex: 12 - linha 1 / coluna 2) para tentar acertar um navio!" << "\n";
 
 			enviarMensagemAdversario(rem_sockfd, posicoesJogadas, todasPosicoesAdversario);
-			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
 			myTurn = false;
 			
@@ -255,7 +252,7 @@ void clientTCP(int argc, char *argv[], json &navios, bool &continuarPartidaAnter
 
 			recv(rem_sockfd, &buffer[0], buffer.size(), 0);
 			verificarTiro(buffer, false, posicoesJogadasAdv, todasPosicoes);
-			finalizacaoPartida = verificarFinalizacaoPartidaAnterior(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
+			finalizacaoPartida = verificarFinalizacaoPartida(posicoesJogadas, posicoesJogadasAdv, todasPosicoes, todasPosicoesAdversario);
 
 			myTurn = true;
 

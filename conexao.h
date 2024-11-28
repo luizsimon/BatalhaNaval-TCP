@@ -10,6 +10,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+// Declaração das funções
 void enviarNavios(int &rem_sockfd, json &navios);
 void receberNavios(int &rem_sockfd);
 void enviarMensagemAdversario(int &sockfd, vector<vector<int>> &posicoesJogadas, vector<vector<int>> &todasPosicoesAdv);
